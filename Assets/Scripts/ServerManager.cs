@@ -90,5 +90,12 @@ public class ServerManager : MonoBehaviour
         {
             Debug.Log($"Reason: {networkManager.DisconnectReason}");
         }
+
+        // Release player disconnected color
+        networkManager.ConnectedClients.TryGetValue(obj, out NetworkClient disconnectedPlayer);
+        if (disconnectedPlayer != null) {
+            PlayerManager playerManager = disconnectedPlayer.PlayerObject.gameObject.GetComponent<PlayerManager>();
+            GameManager.instance.RemoveColorFromUsed(playerManager.PlayerColor.Value);
+        }
     }
 }

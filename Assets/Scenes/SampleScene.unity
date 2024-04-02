@@ -340,7 +340,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxPlayers: 6
   colors:
-  - {r: 1, g: 0, b: 0, a: 0.00000016614067}
+  - {r: 1, g: 0, b: 0, a: 1}
   - {r: 0.08025551, g: 0, b: 1, a: 1.3519501e+22}
   - {r: 0, g: 1, b: 0.10700154, a: 1.3519501e+22}
   - {r: 1, g: 0, b: 0.79884434, a: 1.3519501e+22}
