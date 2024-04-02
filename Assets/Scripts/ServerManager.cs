@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class ServerManager : MonoBehaviour
 {
+    public int maxPlayers = 6;
+
     private NetworkManager networkManager;
 
     private void Start()
@@ -70,7 +72,7 @@ public class ServerManager : MonoBehaviour
 
     private void ApprovalCheck(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
     {
-        if (!GameManager.instance.CanFitMorePlayers()) {
+        if (!CanFitMorePlayers()) {
             response.Approved = false;
             response.Reason = "Server is full";
             Debug.Log("Connection denied");
@@ -97,5 +99,10 @@ public class ServerManager : MonoBehaviour
             PlayerManager playerManager = disconnectedPlayer.PlayerObject.gameObject.GetComponent<PlayerManager>();
             GameManager.instance.RemoveColorFromUsed(playerManager.PlayerColor.Value);
         }
+    }
+
+    public bool CanFitMorePlayers()
+    {
+        return networkManager.ConnectedClients.Count < maxPlayers;
     }
 }
