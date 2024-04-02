@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public int maxPlayers = 6;
+
     public static GameManager instance;
 
     // Color variables
@@ -49,5 +51,10 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("[RemoveColorFromUsed] UsedColors count: " + usedColors.Count);
         Debug.Log("[RemoveColorFromUsed] AvailableColors count: " + colors.Except(usedColors).ToList().Count);
+    }
+
+    public bool CanFitMorePlayers()
+    {
+        return usedColors.Count < maxPlayers;
     }
 }

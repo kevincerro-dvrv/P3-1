@@ -3,6 +3,19 @@ using UnityEngine;
 
 public class ServerManager : MonoBehaviour
 {
+    private NetworkManager networkManager;
+
+    private void Start()
+    {
+        networkManager = GetComponent<NetworkManager>();
+
+        if (networkManager != null)
+        {
+            networkManager.OnClientDisconnectCallback += OnClientDisconnectCallback;
+            networkManager.ConnectionApprovalCallback = ApprovalCheck;
+        }
+    }
+
     void OnGUI()
     {
         GUILayout.BeginArea(new Rect(10, 10, 300, 300));
@@ -52,6 +65,30 @@ public class ServerManager : MonoBehaviour
                 var player = playerObject.GetComponent<PlayerManager>();
                 player.ChangeColor();
             }
+        }
+    }
+
+    private void ApprovalCheck(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
+    {
+        if (!GameManager.instance.CanFitMorePlayers()) {
+            response.Approved = false;
+            response.Reason = "Server is full";
+            Debug.Log("Connection denied");
+            return;
+        }
+
+        response.Approved = true;
+        response.CreatePlayerObject = true;
+        Debug.Log("Connection approved");
+    }
+
+    private void OnClientDisconnectCallback(ulong obj)
+    {
+        Debug.Log("Player disconnected");
+
+        if (!networkManager.IsServer && networkManager.DisconnectReason != string.Empty)
+        {
+            Debug.Log($"Reason: {networkManager.DisconnectReason}");
         }
     }
 }
