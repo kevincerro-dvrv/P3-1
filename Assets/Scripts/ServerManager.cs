@@ -3,6 +3,21 @@ using UnityEngine;
 
 public class ServerManager : MonoBehaviour
 {
+    public int maxPlayers = 6;
+
+    private NetworkManager networkManager;
+
+    private void Start()
+    {
+        networkManager = GetComponent<NetworkManager>();
+
+        if (networkManager != null)
+        {
+            networkManager.OnClientDisconnectCallback += OnClientDisconnectCallback;
+            networkManager.ConnectionApprovalCallback = ApprovalCheck;
+        }
+    }
+
     void OnGUI()
     {
         GUILayout.BeginArea(new Rect(10, 10, 300, 300));
@@ -53,5 +68,41 @@ public class ServerManager : MonoBehaviour
                 player.ChangeColor();
             }
         }
+    }
+
+    private void ApprovalCheck(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
+    {
+        if (!CanFitMorePlayers()) {
+            response.Approved = false;
+            response.Reason = "Server is full";
+            Debug.Log("Connection denied");
+            return;
+        }
+
+        response.Approved = true;
+        response.CreatePlayerObject = true;
+        Debug.Log("Connection approved");
+    }
+
+    private void OnClientDisconnectCallback(ulong obj)
+    {
+        Debug.Log("Player disconnected");
+
+        if (!networkManager.IsServer && networkManager.DisconnectReason != string.Empty)
+        {
+            Debug.Log($"Reason: {networkManager.DisconnectReason}");
+        }
+
+        // Release player disconnected color
+        networkManager.ConnectedClients.TryGetValue(obj, out NetworkClient disconnectedPlayer);
+        if (disconnectedPlayer != null) {
+            PlayerManager playerManager = disconnectedPlayer.PlayerObject.gameObject.GetComponent<PlayerManager>();
+            GameManager.instance.RemoveColorFromUsed(playerManager.PlayerColor.Value);
+        }
+    }
+
+    public bool CanFitMorePlayers()
+    {
+        return networkManager.ConnectedClients.Count < maxPlayers;
     }
 }
